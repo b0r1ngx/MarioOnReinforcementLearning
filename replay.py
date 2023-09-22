@@ -1,21 +1,22 @@
-import random, datetime
+import datetime
 from pathlib import Path
 
-import gym
 import gym_super_mario_bros
 from gym.wrappers import FrameStack, GrayScaleObservation, TransformObservation
 from nes_py.wrappers import JoypadSpace
 
-from metrics import MetricLogger
 from agent import Mario
+from metrics import MetricLogger
 from wrappers import ResizeObservation, SkipFrame
 
 env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')
 
 env = JoypadSpace(
     env,
-    [['right'],
-    ['right', 'A']]
+    [
+        ['right'],
+        ['right', 'A']
+    ]
 )
 
 env = SkipFrame(env, skip=4)
@@ -47,15 +48,15 @@ for e in range(episodes):
 
         action = mario.act(state)
 
-        next_state, reward, done, info = env.step(action)
+        next_state, reward, terminated, truncated, info = env.step(action)
 
-        mario.cache(state, next_state, action, reward, done)
+        mario.cache(state, next_state, action, reward, terminated, truncated)
 
         logger.log_step(reward, None, None)
 
         state = next_state
 
-        if done or info['flag_get']:
+        if terminated or info['flag_get']:
             break
 
     logger.log_episode()

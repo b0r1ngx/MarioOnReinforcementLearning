@@ -1,9 +1,8 @@
 import gym
-import torch
-import random, datetime, numpy as np
+import numpy as np
+from gym.spaces import Box
 from skimage import transform
 
-from gym.spaces import Box
 
 class ResizeObservation(gym.ObservationWrapper):
     def __init__(self, env, shape):
@@ -33,11 +32,13 @@ class SkipFrame(gym.Wrapper):
     def step(self, action):
         """Repeat action, and sum reward"""
         total_reward = 0.0
-        done = False
+        terminated = False
         for i in range(self._skip):
             # Accumulate reward and repeat the same action
-            obs, reward, done, info = self.env.step(action)
+            # l = self.env.step(action)
+            # print(l)
+            obs, reward, terminated, truncated, info = self.env.step(action)
             total_reward += reward
-            if done:
+            if terminated:
                 break
-        return obs, total_reward, done, info
+        return obs, total_reward, terminated, truncated, info
