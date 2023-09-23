@@ -23,9 +23,7 @@ else:
         apply_api_compatibility=True
     )
 
-env = JoypadSpace(
-    env, actions
-)
+env = JoypadSpace(env, actions)
 
 env = SkipFrame(env, skip=4)
 env = GrayScaleObservation(env, keep_dim=False)
@@ -66,7 +64,7 @@ for e in range(episodes):
 
         next_state, reward, terminated, truncated, info = env.step(action)
 
-        mario.cache(state, next_state, action, reward, terminated, truncated)
+        mario.cache(state, next_state, action, reward, terminated)
 
         logger.log_step(reward, None, None)
 

@@ -58,7 +58,7 @@ class Mario:
             state = state[0].__array__() if isinstance(state, tuple) else state.__array__()
             state = torch.tensor(
                 data=state,
-                dtype=torch.float32,
+                dtype=torch.float,  # error: MPS supports only float32
                 device=self.device
             ).unsqueeze(0)
             action_values = self.net(state, model="online")
@@ -83,8 +83,10 @@ class Mario:
         reward (``float``),
         done(``bool``))
         """
+
         def first_if_tuple(x):
             return x[0] if isinstance(x, tuple) else x
+
         state = first_if_tuple(state).__array__()
         next_state = first_if_tuple(next_state).__array__()
 
@@ -102,7 +104,8 @@ class Mario:
         Retrieve a batch of experiences from memory
         """
         batch = self.memory.sample(self.batch_size).to(self.device)
-        state, next_state, action, reward, done = (batch.get(key) for key in ("state", "next_state", "action", "reward", "done"))
+        state, next_state, action, reward, done = (batch.get(key) for key in
+                                                   ("state", "next_state", "action", "reward", "done"))
         return state, next_state, action.squeeze(), reward.squeeze(), done.squeeze()
 
     def td_estimate(self, state, action):
