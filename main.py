@@ -7,19 +7,20 @@ from gym.wrappers import FrameStack, GrayScaleObservation, TransformObservation
 from nes_py.wrappers import JoypadSpace
 
 from agent import Mario
+from constants import *
 from metrics import MetricLogger
 from wrappers import ResizeObservation, SkipFrame
 
 # Initialize Super Mario environment
 if gym.__version__ < '0.26':
     env = gym_super_mario_bros.make(
-        id="SuperMarioBros-1-1-v0",
+        id=level,
         new_step_api=True
     )
 else:
     env = gym_super_mario_bros.make(
-        id="SuperMarioBros-1-1-v0",
-        render_mode='rgb',
+        id=level,
+        render_mode='human',
         apply_api_compatibility=True
     )
 
@@ -28,13 +29,7 @@ else:
 #   1. jump right
 #   todo: why? sometimes tasks can be solved faster with other actions,
 #    but ofc, less action-space, less brain is needed
-env = JoypadSpace(
-    env,
-    [
-        ['right'],
-        ['right', 'A']
-    ]
-)
+env = JoypadSpace(env, actions)
 
 # Apply Wrappers to environment
 env = SkipFrame(env, skip=4)
@@ -62,7 +57,7 @@ mario = Mario(
 logger = MetricLogger(save_dir)
 
 # from guide - 40000 (20 hrs from author on GPU)
-episodes = 700
+episodes = 400
 
 # for Loop that train the model num_episodes times by playing the game
 for e in range(episodes):
