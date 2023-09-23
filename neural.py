@@ -3,9 +3,10 @@ import copy
 
 
 class MarioNet(nn.Module):
-    '''mini cnn structure
-    input -> (conv2d + relu) x 3 -> flatten -> (dense + relu) x 2 -> output
-    '''
+    """ input -> (conv2d + relu) x 3
+              -> flatten
+              -> (dense + relu) x 2 -> output
+    """
 
     def __init__(self, input_dim, output_dim):
         super().__init__()

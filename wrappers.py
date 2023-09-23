@@ -13,7 +13,9 @@ class ResizeObservation(gym.ObservationWrapper):
             self.shape = tuple(shape)
 
         obs_shape = self.shape + self.observation_space.shape[2:]
-        self.observation_space = Box(low=0, high=255, shape=obs_shape, dtype=np.uint8)
+        self.observation_space = Box(
+            low=0, high=255, shape=obs_shape, dtype=np.uint8
+        )
 
     def observation(self, observation):
         resize_obs = transform.resize(observation, self.shape)
@@ -35,8 +37,6 @@ class SkipFrame(gym.Wrapper):
         terminated = False
         for i in range(self._skip):
             # Accumulate reward and repeat the same action
-            # l = self.env.step(action)
-            # print(l)
             obs, reward, terminated, truncated, info = self.env.step(action)
             total_reward += reward
             if terminated:

@@ -1,6 +1,6 @@
-import numpy as np
-import random
 from collections import deque
+
+import numpy as np
 import torch
 
 from constants import mps_device
@@ -24,7 +24,7 @@ class Mario:
         self.learn_every = 3  # no. of experiences between updates to Q_online
         self.sync_every = 1e4  # no. of experiences between Q_target & Q_online sync
 
-        self.save_every = 5e5  # no. of experiences between saving Mario Net
+        self.save_every = 5e4  # no. of experiences between saving Mario Net (5e5)
         self.save_dir = save_dir
 
         self.use_mps = torch.backends.mps.is_available()
