@@ -7,4 +7,4 @@ actions = [
     ['right', 'A']
 ]
 
-level = 'SuperMarioBros-1-1-v0'
+level = 'SuperMarioBros-2-1-v0'

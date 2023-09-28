@@ -35,6 +35,7 @@ env = JoypadSpace(env, actions)
 env = SkipFrame(env, skip=4)
 env = GrayScaleObservation(env)
 env = ResizeObservation(env, shape=84)
+# was in initial (old) tutorial
 # env = TransformObservation(env, f=lambda x: x / 255.)
 if gym.__version__ < '0.26':
     env = FrameStack(env, num_stack=4, new_step_api=True)
@@ -46,7 +47,8 @@ env.reset()
 save_dir = Path('checkpoints') / datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
 save_dir.mkdir(parents=True)
 
-checkpoint = None  # Path('checkpoints/2020-10-21T18-25-27/mario.chkpt')
+# to start model from some checkpoint, use it
+checkpoint = Path('checkpoints/2023-09-26T17-03-14/mario_net_10.chkpt')
 mario = Mario(
     state_dim=(4, 84, 84),
     action_dim=env.action_space.n,
@@ -57,43 +59,34 @@ mario = Mario(
 logger = MetricLogger(save_dir)
 
 # from guide - 40000 (20 hrs from author on GPU)
-episodes = 400
+episodes = 40000
 
 # for Loop that train the model num_episodes times by playing the game
 for e in range(episodes):
-
     state = env.reset()
-
     # Play the game!
     while True:
-
         # Run agent on the state
         action = mario.act(state)
-
         # Agent performs action
         next_state, reward, done, trunc, info = env.step(action)
-
         # Remember
         mario.cache(state, next_state, action, reward, done)
-
         # Learn
         q, loss = mario.learn()
-
         # Logging
         logger.log_step(reward, loss, q)
-
         # Update state
         state = next_state
-
         # Check if end of game
         if done or info["flag_get"]:
             break
 
     logger.log_episode()
-
-    if e % 20 == 0:
+    if e % 10 == 0:
         logger.record(
             episode=e,
             epsilon=mario.exploration_rate,
             step=mario.curr_step
         )
+        print('explored: ', mario.explored)

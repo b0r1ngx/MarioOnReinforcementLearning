@@ -14,21 +14,23 @@ class Mario:
         self.memory = deque(maxlen=100000)
         self.batch_size = 32
 
-        self.exploration_rate = 1
-        self.exploration_rate_decay = 0.99999975
-        self.exploration_rate_min = 0.1
-        self.gamma = 0.9
+        self.explored = 0
+        self.exploration_rate = .1
+        self.exploration_rate_decay = .99999975  # 99999975
+        self.exploration_rate_min = .1
+        self.gamma = .9
 
         self.curr_step = 0
         self.burnin = 1e5  # min. experiences before training
         self.learn_every = 3  # no. of experiences between updates to Q_online
         self.sync_every = 1e4  # no. of experiences between Q_target & Q_online sync
 
-        self.save_every = 5e4  # no. of experiences between saving Mario Net (5e5)
+        self.save_every = 1e4  # no. of experiences between saving Mario Net (5e5)
         self.save_dir = save_dir
 
         self.use_mps = torch.backends.mps.is_available()
         self.device = "mps" if self.use_mps else "cpu"
+        print("works on: ", self.device)
 
         # Mario's DNN to predict the most optimal action - we implement this in the Learn section
         self.net = MarioNet(self.state_dim, self.action_dim).float()
@@ -37,51 +39,52 @@ class Mario:
         if checkpoint:
             self.load(checkpoint)
 
-        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=0.00025)
-        self.loss_fn = torch.nn.SmoothL1Loss()
+        # from author: Adam
+        self.optimizer = torch.optim.Adam(  # ax
+            self.net.parameters(), lr=.00025
+        )
+        self.loss_fn = torch.nn.MSELoss()  # from author: SmoothL1Loss
 
     def act(self, state):
+        """Given a state, choose an epsilon-greedy action and update value of step.
+            Inputs: state(LazyFrame): A single observation of the current state, dimension is (state_dim)
+            Outputs: action_idx (int): An integer representing which action Mario will perform
         """
-    Given a state, choose an epsilon-greedy action and update value of step.
-
-    Inputs:
-    state(``LazyFrame``): A single observation of the current state, dimension is (state_dim)
-    Outputs:
-    ``action_idx`` (``int``): An integer representing which action Mario will perform
-    """
         # EXPLORE
+        #
         if np.random.rand() < self.exploration_rate:
             action_idx = np.random.randint(self.action_dim)
 
         # EXPLOIT
         else:
+            self.explored += 1
             state = state[0].__array__() if isinstance(state, tuple) else state.__array__()
             state = torch.tensor(
                 data=state,
-                dtype=torch.float,  # error: MPS supports only float32
+                dtype=torch.float32,  # error: MPS supports only float32
                 device=self.device
             ).unsqueeze(0)
             action_values = self.net(state, model="online")
             action_idx = torch.argmax(action_values, axis=1).item()
 
         # decrease exploration_rate
-        self.exploration_rate *= self.exploration_rate_decay
-        self.exploration_rate = max(self.exploration_rate_min, self.exploration_rate)
+        if self.exploration_rate < self.exploration_rate_min:
+            self.exploration_rate = self.exploration_rate_min
+        else:
+            self.exploration_rate *= self.exploration_rate_decay
 
         # increment step
         self.curr_step += 1
         return action_idx
 
     def cache(self, state, next_state, action, reward, done):
-        """
-        Store the experience to self.memory (replay buffer)
-
-        Inputs:
-        state (``LazyFrame``),
-        next_state (``LazyFrame``),
-        action (``int``),
-        reward (``float``),
-        done(``bool``))
+        """Store the experience to self.memory (replay buffer)
+            Inputs:
+            state (``LazyFrame``),
+            next_state (``LazyFrame``),
+            action (``int``),
+            reward (``float``),
+            done(``bool``)
         """
 
         def first_if_tuple(x):
@@ -104,8 +107,9 @@ class Mario:
         Retrieve a batch of experiences from memory
         """
         batch = self.memory.sample(self.batch_size).to(self.device)
-        state, next_state, action, reward, done = (batch.get(key) for key in
-                                                   ("state", "next_state", "action", "reward", "done"))
+        state, next_state, action, reward, done = (
+            batch.get(key) for key in
+            ("state", "next_state", "action", "reward", "done"))
         return state, next_state, action.squeeze(), reward.squeeze(), done.squeeze()
 
     def td_estimate(self, state, action):
@@ -177,7 +181,12 @@ class Mario:
         if not load_path.exists():
             raise ValueError(f"{load_path} does not exist")
 
-        ckp = torch.load(load_path, map_location=('mps' if self.use_mps else 'cpu'))
+        ckp = torch.load(
+            load_path,
+            map_location=(
+                'mps' if self.use_mps else 'cpu'
+            )
+        )
         exploration_rate = ckp.get('exploration_rate')
         state_dict = ckp.get('model')
 

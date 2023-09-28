@@ -44,7 +44,7 @@ class MetricLogger():
             self.curr_ep_loss_length += 1
 
     def log_episode(self):
-        "Mark end of episode"
+        """Mark end of episode"""
         self.ep_rewards.append(self.curr_ep_reward)
         self.ep_lengths.append(self.curr_ep_length)
         if self.curr_ep_loss_length == 0:
@@ -66,6 +66,7 @@ class MetricLogger():
         self.curr_ep_loss_length = 0
 
     def record(self, episode, epsilon, step):
+        # why we pick only 100? need to pick, how many steps are maden?
         mean_ep_reward = np.round(np.mean(self.ep_rewards[-100:]), 3)
         mean_ep_length = np.round(np.mean(self.ep_lengths[-100:]), 3)
         mean_ep_loss = np.round(np.mean(self.ep_avg_losses[-100:]), 3)
