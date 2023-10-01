@@ -1,5 +1,6 @@
 import numpy as np
-import time, datetime
+import time
+from datetime import datetime
 import matplotlib.pyplot as plt
 
 
@@ -8,8 +9,10 @@ class MetricLogger():
         self.save_log = save_dir / "log"
         with open(self.save_log, "w") as f:
             f.write(
-                f"{'Episode':>8}{'Step':>8}{'Epsilon':>10}{'MeanReward':>15}"
-                f"{'MeanLength':>15}{'MeanLoss':>15}{'MeanQValue':>15}"
+                f"{'Episode':>8}{'Step':>8}"
+                f"{'Epsilon':>10}{'MeanReward':>15}"
+                f"{'MeanLength':>15}{'MeanLoss':>15}"
+                f"{'MeanQValue':>15}"
                 f"{'TimeDelta':>15}{'Time':>20}\n"
             )
         self.ep_rewards_plot = save_dir / "reward_plot.jpg"
@@ -51,8 +54,13 @@ class MetricLogger():
             ep_avg_loss = 0
             ep_avg_q = 0
         else:
-            ep_avg_loss = np.round(self.curr_ep_loss / self.curr_ep_loss_length, 5)
-            ep_avg_q = np.round(self.curr_ep_q / self.curr_ep_loss_length, 5)
+            ep_avg_loss = np.round(
+                self.curr_ep_loss / self.curr_ep_loss_length,
+                decimals=5
+            )
+            ep_avg_q = np.round(
+                self.curr_ep_q / self.curr_ep_loss_length,
+                decimals=5)
         self.ep_avg_losses.append(ep_avg_loss)
         self.ep_avg_qs.append(ep_avg_q)
 
@@ -66,11 +74,24 @@ class MetricLogger():
         self.curr_ep_loss_length = 0
 
     def record(self, episode, epsilon, step):
-        # why we pick only 100? need to pick, how many steps are maden?
-        mean_ep_reward = np.round(np.mean(self.ep_rewards[-100:]), 3)
-        mean_ep_length = np.round(np.mean(self.ep_lengths[-100:]), 3)
-        mean_ep_loss = np.round(np.mean(self.ep_avg_losses[-100:]), 3)
-        mean_ep_q = np.round(np.mean(self.ep_avg_qs[-100:]), 3)
+        # why we pick only 100 (its declared in readme)?
+        # maybe need to pick, how many steps are made in this episode?
+        mean_ep_reward = np.round(
+            np.mean(self.ep_rewards[-100:]),
+            decimals=3
+        )
+        mean_ep_length = np.round(
+            np.mean(self.ep_lengths[-100:]),
+            decimals=3
+        )
+        mean_ep_loss = np.round(
+            np.mean(self.ep_avg_losses[-100:]),
+            decimals=3
+        )
+        mean_ep_q = np.round(
+            np.mean(self.ep_avg_qs[-100:]),
+            decimals=3
+        )
         self.moving_avg_ep_rewards.append(mean_ep_reward)
         self.moving_avg_ep_lengths.append(mean_ep_length)
         self.moving_avg_ep_avg_losses.append(mean_ep_loss)
@@ -78,7 +99,10 @@ class MetricLogger():
 
         last_record_time = self.record_time
         self.record_time = time.time()
-        time_since_last_record = np.round(self.record_time - last_record_time, 3)
+        time_since_last_record = np.round(
+            self.record_time - last_record_time,
+            decimals=3
+        )
 
         print(
             f"Episode {episode} - "
@@ -89,15 +113,16 @@ class MetricLogger():
             f"Mean Loss {mean_ep_loss} - "
             f"Mean Q Value {mean_ep_q} - "
             f"Time Delta {time_since_last_record} - "
-            f"Time {datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}"
+            f"Time {datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}"
         )
 
         with open(self.save_log, "a") as f:
             f.write(
                 f"{episode:8d}{step:8d}{epsilon:10.3f}"
-                f"{mean_ep_reward:15.3f}{mean_ep_length:15.3f}{mean_ep_loss:15.3f}{mean_ep_q:15.3f}"
+                f"{mean_ep_reward:15.3f}{mean_ep_length:15.3f}"
+                f"{mean_ep_loss:15.3f}{mean_ep_q:15.3f}"
                 f"{time_since_last_record:15.3f}"
-                f"{datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S'):>20}\n"
+                f"{datetime.now().strftime('%Y-%m-%dT%H:%M:%S'):>20}\n"
             )
 
         for metric in ["ep_rewards", "ep_lengths", "ep_avg_losses", "ep_avg_qs"]:
