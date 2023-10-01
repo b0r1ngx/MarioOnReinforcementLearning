@@ -60,7 +60,8 @@ class MetricLogger():
             )
             ep_avg_q = np.round(
                 self.curr_ep_q / self.curr_ep_loss_length,
-                decimals=5)
+                decimals=5
+            )
         self.ep_avg_losses.append(ep_avg_loss)
         self.ep_avg_qs.append(ep_avg_q)
 
@@ -74,7 +75,7 @@ class MetricLogger():
         self.curr_ep_loss_length = 0
 
     def record(self, episode, epsilon, step):
-        # why we pick only 100 (its declared in readme)?
+        # Q: why we pick only 100, A: declared in readme
         # maybe need to pick, how many steps are made in this episode?
         mean_ep_reward = np.round(
             np.mean(self.ep_rewards[-100:]),

@@ -75,3 +75,15 @@ Reinforcement Learning: An Introduction, Richard S. Sutton et al. https://web.st
 super-mario-reinforcement-learning, GitHub: https://github.com/sebastianheinz/super-mario-reinforcement-learning
 
 Deep Reinforcement Learning Doesn't Work Yet: https://www.alexirpan.com/2018/02/14/rl-hard.html
+
+## Troubleshooting
+If you have troubles with torchrl / tensordict import (smth like: cannot import name 'unravel_key' from 'tensordict': 
+reinstall from source helps me (if you use conda, use it instead of pip):
+```
+pip uninstall torchrl
+pip uninstall tensordict
+pip uninstall tensordict-nightly
+
+pip install git+https://github.com/pytorch/rl
+pip install git+https://github.com/pytorch-labs/tensordict
+```

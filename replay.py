@@ -42,8 +42,8 @@ save_dir.mkdir(parents=True)
 # prev:  # Path('checkpoints/2023-09-23T22-50-27/mario_net_8.chkpt')
 checkpoint = Path('checkpoints/2023-09-26T17-03-14/mario_net_10.chkpt')
 mario = Mario(
-    state_dim=(4, 84, 84),
-    action_dim=env.action_space.n,
+    inputs=(4, 84, 84),
+    actions=env.action_space.n,
     save_dir=save_dir,
     checkpoint=checkpoint
 )

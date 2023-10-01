@@ -1,6 +1,7 @@
-gym==
+gym
 gym-super-mario-bros
 numpy
 torch
+torchrl
 scikit-image
 opencv-python

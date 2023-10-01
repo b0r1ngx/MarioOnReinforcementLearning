@@ -1,6 +1,8 @@
 from torch import nn
 import copy
 
+from constants import device
+
 
 class MarioNet(nn.Module):
     """ input -> (conv2d + relu) x 3
@@ -8,9 +10,9 @@ class MarioNet(nn.Module):
               -> (dense + relu) x 2 -> output
     """
 
-    def __init__(self, input_dim, output_dim):
+    def __init__(self, input, output, device=device):
         super().__init__()
-        c, h, w = input_dim
+        c, h, w = input
 
         if h != 84:
             raise ValueError(f"Expecting input height: 84, got: {h}")
@@ -36,9 +38,9 @@ class MarioNet(nn.Module):
             nn.Flatten(),
             nn.Linear(3136, 512),
             nn.ReLU(),
-            nn.Linear(512, output_dim)
+            nn.Linear(512, output)
         )
-
+        self.to(device)
         self.target = copy.deepcopy(self.online)
 
         # Q_target parameters are frozen.

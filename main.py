@@ -50,16 +50,17 @@ save_dir.mkdir(parents=True)
 # to start model from some checkpoint, use it
 checkpoint = Path('checkpoints/2023-09-26T17-03-14/mario_net_10.chkpt')
 mario = Mario(
-    state_dim=(4, 84, 84),
-    action_dim=env.action_space.n,
+    inputs=(4, 84, 84),
+    actions=env.action_space.n,
     save_dir=save_dir,
     checkpoint=checkpoint
 )
 
 logger = MetricLogger(save_dir)
 
-# from guide - 40000 (20 hrs from author on GPU)
-episodes = 40000
+# from guide - 40000 (20 hrs on GPU (c) author)
+# 2h on MPS (Apple Silicon M2 Pro (2023))
+episodes = 40_000
 
 # for Loop that train the model num_episodes times by playing the game
 for e in range(episodes):
