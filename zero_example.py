@@ -1,8 +1,8 @@
 import gym
 import gym_super_mario_bros
-from gym_super_mario_bros.actions import *
 from nes_py.wrappers import JoypadSpace
 
+from actions import ACTIONS
 from constants import level
 
 if gym.__version__ < '0.26':
@@ -17,8 +17,15 @@ else:
         apply_api_compatibility=True
     )
 
-env = JoypadSpace(env, actions=SIMPLE_MOVEMENT)
+env = JoypadSpace(env, actions=ACTIONS)
 env.reset()
+next_state, reward, done, trunc, info = env.step(action=0)
+print(
+    f"shape: {next_state.shape}, "
+    f"reward: {reward}, "
+    f"done: {done},\n"
+    f"info: {info}"
+)
 
 done = True
 while True:

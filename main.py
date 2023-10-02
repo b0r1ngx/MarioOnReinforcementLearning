@@ -11,8 +11,15 @@ from constants import *
 from metrics import MetricLogger
 from wrappers import ResizeObservation, SkipFrame, GrayScaleObservation
 
+# to increase learning process, off rendering
+# todo: test it
+render = True
+render = 'human' if render else None
+
 # Initialize Super Mario environment
 if gym.__version__ < '0.26':
+    # old version, without render parameter,
+    # need to use env.render() in code
     env = gym_super_mario_bros.make(
         id=level,
         new_step_api=True
@@ -20,7 +27,7 @@ if gym.__version__ < '0.26':
 else:
     env = gym_super_mario_bros.make(
         id=level,
-        render_mode='human',
+        render_mode=render,
         apply_api_compatibility=True
     )
 
@@ -33,10 +40,8 @@ env = JoypadSpace(env, actions)
 
 # Apply Wrappers to environment
 env = SkipFrame(env, skip=4)
-env = GrayScaleObservation(env)
 env = ResizeObservation(env, shape=84)
-# was in initial (old) tutorial
-# env = TransformObservation(env, f=lambda x: x / 255.)
+env = GrayScaleObservation(env)
 if gym.__version__ < '0.26':
     env = FrameStack(env, num_stack=4, new_step_api=True)
 else:
@@ -48,7 +53,7 @@ save_dir = Path('checkpoints') / datetime.datetime.now().strftime('%Y-%m-%dT%H-%
 save_dir.mkdir(parents=True)
 
 # to start model from some checkpoint, use it
-checkpoint = Path('checkpoints/2023-09-26T17-03-14/mario_net_10.chkpt')
+checkpoint = Path('checkpoints/2023-10-01T19-04-15/mario_net_1.chkpt')
 mario = Mario(
     inputs=(4, 84, 84),
     actions=env.action_space.n,

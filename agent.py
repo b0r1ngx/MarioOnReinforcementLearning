@@ -22,13 +22,13 @@ class Mario:
         self.batch_size = 32
 
         self.explored = 0
-        self.exploration_rate = .1
-        self.exploration_rate_decay = .99999975  # 99999975
+        self.exploration_rate = 1
+        self.exploration_rate_decay = .999999  # 99999975
         self.exploration_rate_min = .1
         self.gamma = .9
 
         self.curr_step = 0
-        self.not_learn_before = 10_000  # 100000
+        self.not_learn_before = 10_00  # 100000
         self.learn_every = 3  # no. of experiences between updates to Q_online
         self.sync_every = 1e4  # no. of experiences between Q_target & Q_online sync
 
@@ -173,7 +173,6 @@ class Mario:
         if self.curr_step % self.learn_every != 0:
             return None, None
 
-        print('learn')
         # Sample from memory
         state, next_state, action, reward, done = self.recall()
 

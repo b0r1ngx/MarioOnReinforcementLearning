@@ -15,6 +15,10 @@ PyTorch [official tutorial](https://pytorch.org/tutorials/intermediate/mario_rl_
     conda activate myenv
     ```
 
+You can use mamba instead of conda.
+
+Or pip, with ```pip install -r requirements.txt```
+
 ## Running
 To start the **learning** process for Mario,
 ```
