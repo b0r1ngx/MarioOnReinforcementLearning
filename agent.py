@@ -23,14 +23,14 @@ class Mario:
 
         self.explored = 0
         self.exploration_rate = 1
-        self.exploration_rate_decay = .999999  # 99999975
+        self.exploration_rate_decay = .9999995  # 99999975
         self.exploration_rate_min = .1
         self.gamma = .9
 
         self.curr_step = 0
-        self.not_learn_before = 10_00  # 100000
+        self.not_learn_before = 20_00  # 100000
         self.learn_every = 3  # no. of experiences between updates to Q_online
-        self.sync_every = 1e4  # no. of experiences between Q_target & Q_online sync
+        self.sync_every = 20_00  # no. of experiences between Q_target & Q_online sync (1e4)
 
         self.save_every = 1e4  # no. of experiences between saving Mario Net (5e5)
         self.save_dir = save_dir
@@ -51,7 +51,7 @@ class Mario:
             self.net.parameters(), lr=.00025
         )
         # from author: SmoothL1Loss
-        self.loss_fn = torch.nn.MSELoss()
+        self.loss_fn = torch.nn.SmoothL1Loss()  # MSELoss
 
     def act(self, state):
         """Given a state, choose an epsilon-greedy action and update value of step.
@@ -59,7 +59,6 @@ class Mario:
             Outputs: action_idx (int): An integer representing which action Mario will perform
         """
         # EXPLORE
-        #
         if np.random.rand() < self.exploration_rate:
             action_idx = np.random.randint(self.actions)
 

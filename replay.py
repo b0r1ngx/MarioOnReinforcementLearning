@@ -6,6 +6,7 @@ import gym_super_mario_bros
 from gym.wrappers import FrameStack  # , GrayScaleObservation, TransformObservation
 from nes_py.wrappers import JoypadSpace
 
+from actions import ACTIONS
 from agent import Mario
 from constants import *
 from metrics import MetricLogger
@@ -23,7 +24,7 @@ else:
         apply_api_compatibility=True
     )
 
-env = JoypadSpace(env, actions)
+env = JoypadSpace(env, ACTIONS)
 
 env = SkipFrame(env, skip=4)
 env = GrayScaleObservation(env)

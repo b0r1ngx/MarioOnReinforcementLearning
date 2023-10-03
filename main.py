@@ -6,6 +6,7 @@ import gym_super_mario_bros
 from gym.wrappers import FrameStack  # , GrayScaleObservation, TransformObservation
 from nes_py.wrappers import JoypadSpace
 
+from actions import ACTIONS
 from agent import Mario
 from constants import *
 from metrics import MetricLogger
@@ -36,12 +37,12 @@ else:
 #   1. jump right
 #   todo: why? sometimes tasks can be solved faster with other actions,
 #    but ofc, less action-space, less brain is needed
-env = JoypadSpace(env, actions)
+env = JoypadSpace(env, ACTIONS)
 
 # Apply Wrappers to environment
 env = SkipFrame(env, skip=4)
-env = ResizeObservation(env, shape=84)
 env = GrayScaleObservation(env)
+env = ResizeObservation(env, shape=84)
 if gym.__version__ < '0.26':
     env = FrameStack(env, num_stack=4, new_step_api=True)
 else:
@@ -53,7 +54,7 @@ save_dir = Path('checkpoints') / datetime.datetime.now().strftime('%Y-%m-%dT%H-%
 save_dir.mkdir(parents=True)
 
 # to start model from some checkpoint, use it
-checkpoint = Path('checkpoints/2023-10-01T19-04-15/mario_net_1.chkpt')
+checkpoint = None  # Path('checkpoints/2023-10-01T19-04-15/mario_net_1.chkpt')
 mario = Mario(
     inputs=(4, 84, 84),
     actions=env.action_space.n,
@@ -64,7 +65,9 @@ mario = Mario(
 logger = MetricLogger(save_dir)
 
 # from guide - 40000 (20 hrs on GPU (c) author)
-# 2h on MPS (Apple Silicon M2 Pro (2023))
+# 50h on MPS (Apple Silicon M2 Pro (2023),
+# main bad thing here, is that MPS allow usage
+# only of 32-bit types variables (like float32, etc))
 episodes = 40_000
 
 # for Loop that train the model num_episodes times by playing the game
