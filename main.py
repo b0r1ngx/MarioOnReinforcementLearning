@@ -78,7 +78,8 @@ for e in range(episodes):
         # Run agent on the state
         action = mario.act(state)
         # Agent performs action
-        next_state, reward, done, trunc, info = env.step(action)
+        next_state, reward, term, trunc, info = env.step(action)
+        done = term or trunc
         # Remember
         mario.cache(state, next_state, action, reward, done)
         # Learn

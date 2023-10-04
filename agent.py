@@ -13,6 +13,9 @@ class Mario:
     def __init__(self, inputs, actions, save_dir, checkpoint=None):
         self.inputs = inputs
         self.actions = actions
+        # if u have problems with torchrl, u can use this:
+        # * also change in other places with this mark *:
+        # self.memory = deque(maxlen=100000)
         self.memory = TensorDictReplayBuffer(
             storage=LazyMemmapStorage(
                 max_size=100_000,
@@ -86,12 +89,8 @@ class Mario:
 
     def cache(self, state, next_state, action, reward, done):
         """Store the experience to self.memory (replay buffer)
-            Inputs:
-                state (``LazyFrame``),
-                next_state (``LazyFrame``),
-                action (``int``),
-                reward (``float``),
-                done(``bool``)
+            Inputs: state (``LazyFrame``), next_state (``LazyFrame``),
+                action (``int``), reward (``float``), done(``bool``)
         """
 
         def first_if_tuple(x):
@@ -100,36 +99,34 @@ class Mario:
         state = first_if_tuple(state).__array__()
         next_state = first_if_tuple(next_state).__array__()
 
-        state = torch.tensor(state)
-        next_state = torch.tensor(next_state)
-        action = torch.tensor([action])
-        reward = torch.tensor([reward])
-        done = torch.tensor([done])
-
+        # if u have problems with torchrl, u can use this:
+        # * also change in other places with this mark *:
+        # self.memory.append((state, next_state, action, reward, done))
         self.memory.add(
             TensorDict(
                 source={
-                    "state": state,
-                    "next_state": next_state,
-                    "action": action,
-                    "reward": reward,
-                    "done": done
+                    "state": torch.tensor(state),
+                    "next_state": torch.tensor(next_state),
+                    "action": torch.tensor([action]),
+                    "reward": torch.tensor([reward]),
+                    "done": torch.tensor([done])
                 },
                 batch_size=[]
             )
         )
 
     def recall(self):
+        """ Mario randomly samples a batch of experiences
+            from his memory, and uses that to learn the game.
         """
-        Mario randomly samples a batch of experiences
-        from his memory, and uses that to learn the game.
-        """
-        batch = self.memory.sample(self.batch_size).to(self.device)
-        # if u have problems with torchrl, u can install:
+        # if u have problems with torchrl, u can use this:
+        # * also change in other places with this mark *:
         # batch = random.sample(self.memory, self.batch_size)
+        batch = self.memory.sample(self.batch_size).to(self.device)
         state, next_state, action, reward, done = (
             batch.get(key) for key in
-            ("state", "next_state", "action", "reward", "done"))
+            ("state", "next_state", "action", "reward", "done")
+        )
         return state, next_state, action.squeeze(), reward.squeeze(), done.squeeze()
 
     def td_estimate(self, state, action):

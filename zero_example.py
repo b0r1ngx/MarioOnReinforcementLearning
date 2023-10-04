@@ -19,7 +19,8 @@ else:
 
 env = JoypadSpace(env, actions=ACTIONS)
 env.reset()
-next_state, reward, done, trunc, info = env.step(action=0)
+next_state, reward, term, trunc, info = env.step(action=0)
+done = term or trunc
 print(
     f"shape: {next_state.shape}, "
     f"reward: {reward}, "
@@ -31,5 +32,6 @@ done = True
 while True:
     if done:
         state = env.reset()
-    state, reward, done, trunc, info = env.step(env.action_space.sample())
+    state, reward, term, trunc, info = env.step(env.action_space.sample())
+    done = term or trunc
     env.render()

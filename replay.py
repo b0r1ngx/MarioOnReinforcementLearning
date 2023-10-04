@@ -59,7 +59,8 @@ for e in range(episodes):
     while True:
         env.render()
         action = mario.act(state)
-        next_state, reward, done, truncated, info = env.step(action)
+        next_state, reward, term, trunc, info = env.step(action)
+        done = term or trunc
         mario.cache(state, next_state, action, reward, done)
         logger.log_step(reward, None, None)
         state = next_state
